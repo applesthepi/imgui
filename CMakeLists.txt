@@ -1,27 +1,38 @@
 cmake_minimum_required(VERSION 3.15)
-project(UB_IMGUI)
+project(imgui)
 
-add_library(UB_IMGUI STATIC)
+set(IMGUI_SRC
+	${CMAKE_CURRENT_SOURCE_DIR}/include/imgui/imgui_demo.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/imgui/imgui_draw.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/imgui/imgui_tables.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/imgui/imgui_widgets.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/imgui/imgui.cpp
 
-target_sources(UB_IMGUI PRIVATE
-	"imgui_demo.cpp"
-	"imgui_draw.cpp"
-	"imgui_tables.cpp"
-	"imgui_widgets.cpp"
-	"imgui.cpp"
+	${CMAKE_CURRENT_SOURCE_DIR}/include/backends/imgui_impl_vulkan.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/backends/imgui_impl_glfw.cpp
+)
 
-	"backends/imgui_impl_vulkan.cpp"
-	"backends/imgui_impl_glfw.cpp"
+set(PROJECT_BINARY_DIR ${CMAKE_BINARY_DIR})
+add_library(imgui STATIC
+	${IMGUI_SRC}
+)
+
+target_link_libraries(imgui PUBLIC
+	${Vulkan_LIBRARIES}
+	#imm32.lib
 	)
 
-target_include_directories(UB_IMGUI PUBLIC SYSTEM
-	"${CMAKE_CURRENT_SOURCE_DIR}"
-	"${CMAKE_CURRENT_SOURCE_DIR}/backends"
+target_include_directories(imgui PUBLIC SYSTEM
+	${PROJECT_BINARY_DIR}
+	${UB_DEPENDENCIES_INCLUDE}
 
-	${Vulkan_INCLUDE_DIR}
-	${CMAKE_INCLUDES}
+	${CMAKE_CURRENT_SOURCE_DIR}/include
+	${CMAKE_CURRENT_SOURCE_DIR}/include/imgui
+	${CMAKE_CURRENT_SOURCE_DIR}/include/backends
 
-	# TODO: fix this
-	"${CMAKE_SOURCE_DIR}/vcpkg/installed/x64-windows/include"
-	"${CMAKE_SOURCE_DIR}/vcpkg/installed/x64-linux/include"
-	)
+	${CMAKE_SOURCE_DIR}/dependencies/vulkan/Vulkan-Headers/include
+	${CMAKE_SOURCE_DIR}/dependencies/vulkan/glfw/include
+	${CMAKE_SOURCE_DIR}/dependencies/vulkan/glm
+)
+
+set_target_properties(imgui PROPERTIES PREFIX "lib")
